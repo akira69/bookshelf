@@ -33,6 +33,12 @@ namespace Readarr.Api.V1.Config
             SharedValidator.RuleFor(c => c.RecycleBinCleanupDays).GreaterThanOrEqualTo(0);
             SharedValidator.RuleFor(c => c.ChmodFolder).SetValidator(folderChmodValidator).When(c => !string.IsNullOrEmpty(c.ChmodFolder) && (OsInfo.IsLinux || OsInfo.IsOsx));
             SharedValidator.RuleFor(c => c.MinimumFreeSpaceWhenImporting).GreaterThanOrEqualTo(100);
+            SharedValidator.RuleFor(c => c.M4bToolPath).NotEmpty().When(c => c.ConvertAudiobooksToM4b);
+            SharedValidator.RuleFor(c => c.M4bConversionJobs).GreaterThanOrEqualTo(0);
+            SharedValidator.RuleFor(c => c.M4bConversionWorkingDirectory).IsValidPath()
+                                                                       .SetValidator(folderWritableValidator)
+                                                                       .SetValidator(pathExistsValidator)
+                                                                       .When(c => c.ConvertAudiobooksToM4b && !string.IsNullOrWhiteSpace(c.M4bConversionWorkingDirectory));
         }
 
         protected override MediaManagementConfigResource ToResource(IConfigService model)

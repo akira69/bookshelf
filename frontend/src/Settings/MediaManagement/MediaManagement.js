@@ -39,6 +39,12 @@ const fileDateOptions = [
   { key: 'bookReleaseDate', value: 'Book Release Date' }
 ];
 
+const m4bConversionSourceActionOptions = [
+  { key: 'followImportMode', value: 'Follow Import Mode' },
+  { key: 'keep', value: 'Keep Sources' },
+  { key: 'delete', value: 'Delete Sources' }
+];
+
 class MediaManagement extends Component {
 
   //
@@ -230,6 +236,204 @@ class MediaManagement extends Component {
                               {...settings.extraFileExtensions}
                             />
                           </FormGroup> : null
+                      }
+
+                      <FormGroup
+                        advancedSettings={advancedSettings}
+                        isAdvanced={true}
+                        size={sizes.MEDIUM}
+                      >
+                        <FormLabel>
+                          {translate('ConvertAudiobooksToM4b')}
+                        </FormLabel>
+
+                        <FormInputGroup
+                          type={inputTypes.CHECK}
+                          name="convertAudiobooksToM4b"
+                          helpText={translate('ConvertAudiobooksToM4bHelpText')}
+                          onChange={onInputChange}
+                          {...settings.convertAudiobooksToM4b}
+                        />
+                      </FormGroup>
+
+                      {
+                        settings.convertAudiobooksToM4b.value ?
+                          <>
+                            <FormGroup
+                              advancedSettings={advancedSettings}
+                              isAdvanced={true}
+                            >
+                              <FormLabel>
+                                {translate('M4bToolPath')}
+                              </FormLabel>
+
+                              <FormInputGroup
+                                type={inputTypes.TEXT}
+                                name="m4bToolPath"
+                                helpText={translate('M4bToolPathHelpText')}
+                                onChange={onInputChange}
+                                {...settings.m4bToolPath}
+                              />
+                            </FormGroup>
+
+                            <FormGroup
+                              advancedSettings={advancedSettings}
+                              isAdvanced={true}
+                            >
+                              <FormLabel>
+                                {translate('M4bConversionWorkingDirectory')}
+                              </FormLabel>
+
+                              <FormInputGroup
+                                type={inputTypes.PATH}
+                                name="m4bConversionWorkingDirectory"
+                                helpText={translate('M4bConversionWorkingDirectoryHelpText')}
+                                onChange={onInputChange}
+                                {...settings.m4bConversionWorkingDirectory}
+                              />
+                            </FormGroup>
+
+                            <FormGroup
+                              advancedSettings={advancedSettings}
+                              isAdvanced={true}
+                            >
+                              <FormLabel>
+                                {translate('M4bConversionSourceAction')}
+                              </FormLabel>
+
+                              <FormInputGroup
+                                type={inputTypes.SELECT}
+                                name="m4bConversionSourceAction"
+                                helpText={translate('M4bConversionSourceActionHelpText')}
+                                values={m4bConversionSourceActionOptions}
+                                onChange={onInputChange}
+                                {...settings.m4bConversionSourceAction}
+                              />
+                            </FormGroup>
+
+                            <FormGroup
+                              advancedSettings={advancedSettings}
+                              isAdvanced={true}
+                            >
+                              <FormLabel>
+                                {translate('M4bConversionAudioBitrate')}
+                              </FormLabel>
+
+                              <FormInputGroup
+                                type={inputTypes.TEXT}
+                                name="m4bConversionAudioBitrate"
+                                helpText={translate('M4bConversionAudioBitrateHelpText')}
+                                onChange={onInputChange}
+                                {...settings.m4bConversionAudioBitrate}
+                              />
+                            </FormGroup>
+
+                            <FormGroup
+                              advancedSettings={advancedSettings}
+                              isAdvanced={true}
+                            >
+                              <FormLabel>
+                                {translate('M4bConversionAudioCodec')}
+                              </FormLabel>
+
+                              <FormInputGroup
+                                type={inputTypes.TEXT}
+                                name="m4bConversionAudioCodec"
+                                helpText={translate('M4bConversionAudioCodecHelpText')}
+                                onChange={onInputChange}
+                                {...settings.m4bConversionAudioCodec}
+                              />
+                            </FormGroup>
+
+                            <FormGroup
+                              advancedSettings={advancedSettings}
+                              isAdvanced={true}
+                            >
+                              <FormLabel>
+                                {translate('M4bConversionJobs')}
+                              </FormLabel>
+
+                              <FormInputGroup
+                                type={inputTypes.NUMBER}
+                                name="m4bConversionJobs"
+                                helpText={translate('M4bConversionJobsHelpText')}
+                                min={0}
+                                onChange={onInputChange}
+                                {...settings.m4bConversionJobs}
+                              />
+                            </FormGroup>
+
+                            <FormGroup
+                              advancedSettings={advancedSettings}
+                              isAdvanced={true}
+                              size={sizes.MEDIUM}
+                            >
+                              <FormLabel>
+                                {translate('M4bConversionUseFilenamesAsChapters')}
+                              </FormLabel>
+
+                              <FormInputGroup
+                                type={inputTypes.CHECK}
+                                name="m4bConversionUseFilenamesAsChapters"
+                                helpText={translate('M4bConversionUseFilenamesAsChaptersHelpText')}
+                                onChange={onInputChange}
+                                {...settings.m4bConversionUseFilenamesAsChapters}
+                              />
+                            </FormGroup>
+
+                            <FormGroup
+                              advancedSettings={advancedSettings}
+                              isAdvanced={true}
+                              size={sizes.MEDIUM}
+                            >
+                              <FormLabel>
+                                {translate('M4bConversionNoChapterReindexing')}
+                              </FormLabel>
+
+                              <FormInputGroup
+                                type={inputTypes.CHECK}
+                                name="m4bConversionNoChapterReindexing"
+                                helpText={translate('M4bConversionNoChapterReindexingHelpText')}
+                                onChange={onInputChange}
+                                {...settings.m4bConversionNoChapterReindexing}
+                              />
+                            </FormGroup>
+
+                            <FormGroup
+                              advancedSettings={advancedSettings}
+                              isAdvanced={true}
+                              size={sizes.MEDIUM}
+                            >
+                              <FormLabel>
+                                {translate('M4bConversionSkipCover')}
+                              </FormLabel>
+
+                              <FormInputGroup
+                                type={inputTypes.CHECK}
+                                name="m4bConversionSkipCover"
+                                helpText={translate('M4bConversionSkipCoverHelpText')}
+                                onChange={onInputChange}
+                                {...settings.m4bConversionSkipCover}
+                              />
+                            </FormGroup>
+
+                            <FormGroup
+                              advancedSettings={advancedSettings}
+                              isAdvanced={true}
+                            >
+                              <FormLabel>
+                                {translate('M4bConversionExtraArguments')}
+                              </FormLabel>
+
+                              <FormInputGroup
+                                type={inputTypes.TEXT}
+                                name="m4bConversionExtraArguments"
+                                helpText={translate('M4bConversionExtraArgumentsHelpText')}
+                                onChange={onInputChange}
+                                {...settings.m4bConversionExtraArguments}
+                              />
+                            </FormGroup>
+                          </> : null
                       }
                     </FieldSet>
                 }
