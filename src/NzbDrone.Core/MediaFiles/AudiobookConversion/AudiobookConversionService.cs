@@ -39,16 +39,19 @@ namespace NzbDrone.Core.MediaFiles.AudiobookConversion
         private readonly IConfigService _configService;
         private readonly IDiskProvider _diskProvider;
         private readonly IProcessProvider _processProvider;
+        private readonly IM4bToolService _m4bToolService;
         private readonly Logger _logger;
 
         public AudiobookConversionService(IConfigService configService,
                                           IDiskProvider diskProvider,
                                           IProcessProvider processProvider,
+                                          IM4bToolService m4bToolService,
                                           Logger logger)
         {
             _configService = configService;
             _diskProvider = diskProvider;
             _processProvider = processProvider;
+            _m4bToolService = m4bToolService;
             _logger = logger;
         }
 
@@ -87,6 +90,7 @@ namespace NzbDrone.Core.MediaFiles.AudiobookConversion
                 throw new AudiobookConversionException("M4B conversion is enabled but no m4b-tool path is configured.");
             }
 
+            var command = _m4bToolService.GetCommand();
             var workRoot = _configService.M4bConversionWorkingDirectory;
             if (workRoot.IsNullOrWhiteSpace())
             {
@@ -111,9 +115,10 @@ namespace NzbDrone.Core.MediaFiles.AudiobookConversion
                 var outputFile = Path.Combine(outputDir, $"{SafeFileName(Path.GetFileNameWithoutExtension(sourcePath))}.m4b");
                 var logFile = Path.Combine(outputDir, $"{SafeFileName(Path.GetFileNameWithoutExtension(sourcePath))}.log");
                 var args = BuildM4bToolArguments(inputDir, outputFile, logFile, audioFiles);
+                args = M4bToolService.JoinArguments(command.ArgumentsPrefix, args);
 
                 _logger.Info("Converting audiobook import to M4B: {0}", sourcePath);
-                var output = _processProvider.StartAndCapture(_configService.M4bToolPath, args);
+                var output = _processProvider.StartAndCapture(command.Executable, args);
 
                 if (output.ExitCode != 0)
                 {
@@ -289,7 +294,7 @@ namespace NzbDrone.Core.MediaFiles.AudiobookConversion
 
         private static string Quote(string value)
         {
-            return $"\"{value.Replace("\"", "\\\"")}\"";
+            return M4bToolService.Quote(value);
         }
 
         private static string QuoteValue(string value)

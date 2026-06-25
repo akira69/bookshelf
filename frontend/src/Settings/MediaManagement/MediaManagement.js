@@ -12,6 +12,7 @@ import PageContentBody from 'Components/Page/PageContentBody';
 import { inputTypes, kinds, sizes } from 'Helpers/Props';
 import RemotePathMappingsConnector from 'Settings/DownloadClients/RemotePathMappings/RemotePathMappingsConnector';
 import SettingsToolbarConnector from 'Settings/SettingsToolbarConnector';
+import createAjaxRequest from 'Utilities/createAjaxRequest';
 import translate from 'Utilities/String/translate';
 import NamingConnector from './Naming/NamingConnector';
 import RootFoldersConnector from './RootFolder/RootFoldersConnector';
@@ -46,6 +47,135 @@ const m4bConversionSourceActionOptions = [
 ];
 
 class MediaManagement extends Component {
+
+  constructor(props, context) {
+    super(props, context);
+
+    this.state = {
+      isFetchingM4bStatus: false,
+      m4bStatus: null,
+      m4bStatusError: null
+    };
+  }
+
+  componentDidMount() {
+    this.fetchM4bStatus();
+  }
+
+  componentDidUpdate(prevProps) {
+    const previousSettings = prevProps.settings;
+    const settings = this.props.settings;
+    const previousConvertToM4b = previousSettings.convertAudiobooksToM4b?.value;
+    const convertToM4b = settings.convertAudiobooksToM4b?.value;
+    const previousM4bToolPath = previousSettings.m4bToolPath?.value;
+    const m4bToolPath = settings.m4bToolPath?.value;
+
+    if (
+      previousConvertToM4b !== convertToM4b ||
+      previousM4bToolPath !== m4bToolPath
+    ) {
+      this.fetchM4bStatus();
+    }
+  }
+
+  fetchM4bStatus = () => {
+    const {
+      settings
+    } = this.props;
+
+    if (!settings.convertAudiobooksToM4b || !settings.m4bToolPath) {
+      return;
+    }
+
+    if (!settings.convertAudiobooksToM4b.value) {
+      this.setState({
+        isFetchingM4bStatus: false,
+        m4bStatus: null,
+        m4bStatusError: null
+      });
+
+      return;
+    }
+
+    const m4bToolPath = settings.m4bToolPath.value || '';
+
+    this.setState({
+      isFetchingM4bStatus: true,
+      m4bStatusError: null
+    });
+
+    createAjaxRequest({
+      url: `/config/mediamanagement/m4bstatus?m4bToolPath=${encodeURIComponent(m4bToolPath)}`,
+      dataType: 'json'
+    }).request.then((m4bStatus) => {
+      this.setState({
+        isFetchingM4bStatus: false,
+        m4bStatus
+      });
+    }, () => {
+      this.setState({
+        isFetchingM4bStatus: false,
+        m4bStatus: null,
+        m4bStatusError: true
+      });
+    });
+  };
+
+  renderM4bDependencyStatus() {
+    const {
+      isFetchingM4bStatus,
+      m4bStatus,
+      m4bStatusError
+    } = this.state;
+
+    if (isFetchingM4bStatus) {
+      return (
+        <Alert kind={kinds.INFO}>
+          {translate('M4bDependencyStatusChecking')}
+        </Alert>
+      );
+    }
+
+    if (m4bStatusError) {
+      return (
+        <Alert kind={kinds.DANGER}>
+          {translate('M4bDependencyStatusLoadError')}
+        </Alert>
+      );
+    }
+
+    if (!m4bStatus) {
+      return null;
+    }
+
+    return (
+      <Alert kind={m4bStatus.isReady ? kinds.SUCCESS : kinds.WARNING}>
+        <div>
+          {
+            m4bStatus.usesBundledTool ?
+              translate('M4bDependencyStatusBundledTool', { toolPath: m4bStatus.toolPath }) :
+              translate('M4bDependencyStatusExternalTool', { toolPath: m4bStatus.toolPath })
+          }
+        </div>
+
+        <ul>
+          {
+            m4bStatus.dependencies.map((dependency) => {
+              const detail = dependency.available ?
+                dependency.version || translate('M4bDependencyStatusAvailable') :
+                dependency.error || translate('M4bDependencyStatusMissing');
+
+              return (
+                <li key={dependency.name}>
+                  {dependency.name}: {detail}
+                </li>
+              );
+            })
+          }
+        </ul>
+      </Alert>
+    );
+  }
 
   //
   // Render
@@ -275,6 +405,8 @@ class MediaManagement extends Component {
                                 {...settings.m4bToolPath}
                               />
                             </FormGroup>
+
+                            {this.renderM4bDependencyStatus()}
 
                             <FormGroup
                               advancedSettings={advancedSettings}
