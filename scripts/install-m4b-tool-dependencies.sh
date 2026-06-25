@@ -10,7 +10,8 @@ fi
 if command -v apt-get >/dev/null 2>&1; then
   $SUDO apt-get update
   $SUDO apt-get install -y ca-certificates curl ffmpeg php-cli php-intl php-mbstring php-xml
-  if apt-cache show mp4v2-utils >/dev/null 2>&1; then
+  MP4V2_CANDIDATE="$(apt-cache policy mp4v2-utils 2>/dev/null | awk '/Candidate:/ { print $2 }')"
+  if [ -n "$MP4V2_CANDIDATE" ] && [ "$MP4V2_CANDIDATE" != "(none)" ]; then
     $SUDO apt-get install -y mp4v2-utils
   else
     echo "mp4v2-utils is not available from this apt repository; mp4chaps support will be skipped."
