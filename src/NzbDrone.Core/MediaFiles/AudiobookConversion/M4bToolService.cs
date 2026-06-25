@@ -129,6 +129,5 @@ namespace NzbDrone.Core.MediaFiles.AudiobookConversion
         {
             return $"\"{value.Replace("\"", "\\\"")}\"";
         }
-
     }
 }
