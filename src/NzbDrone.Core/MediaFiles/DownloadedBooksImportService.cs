@@ -9,6 +9,7 @@ using NzbDrone.Common.EnvironmentInfo;
 using NzbDrone.Core.Books;
 using NzbDrone.Core.DecisionEngine;
 using NzbDrone.Core.Download;
+using NzbDrone.Core.MediaFiles.AudiobookConversion;
 using NzbDrone.Core.MediaFiles.BookImport;
 using NzbDrone.Core.MediaFiles.Events;
 using NzbDrone.Core.Messaging.Events;
@@ -32,6 +33,7 @@ namespace NzbDrone.Core.MediaFiles
         private readonly IParsingService _parsingService;
         private readonly IMakeImportDecision _importDecisionMaker;
         private readonly IImportApprovedBooks _importApprovedTracks;
+        private readonly IAudiobookConversionService _audiobookConversionService;
         private readonly IEventAggregator _eventAggregator;
         private readonly IRuntimeInfo _runtimeInfo;
         private readonly Logger _logger;
@@ -42,6 +44,7 @@ namespace NzbDrone.Core.MediaFiles
                                              IParsingService parsingService,
                                              IMakeImportDecision importDecisionMaker,
                                              IImportApprovedBooks importApprovedTracks,
+                                             IAudiobookConversionService audiobookConversionService,
                                              IEventAggregator eventAggregator,
                                              IRuntimeInfo runtimeInfo,
                                              Logger logger)
@@ -52,6 +55,7 @@ namespace NzbDrone.Core.MediaFiles
             _parsingService = parsingService;
             _importDecisionMaker = importDecisionMaker;
             _importApprovedTracks = importApprovedTracks;
+            _audiobookConversionService = audiobookConversionService;
             _eventAggregator = eventAggregator;
             _runtimeInfo = runtimeInfo;
             _logger = logger;
@@ -207,6 +211,21 @@ namespace NzbDrone.Core.MediaFiles
                 }
             }
 
+            AudiobookConversionResult conversionResult;
+            try
+            {
+                conversionResult = _audiobookConversionService.ConvertIfNeeded(directoryInfo.FullName, audioFiles);
+                audioFiles = conversionResult.Files;
+            }
+            catch (AudiobookConversionException e)
+            {
+                _logger.Warn(e, "Unable to convert audiobook folder to M4B: {0}", directoryInfo.FullName);
+                return new List<ImportResult>
+                       {
+                           ConversionFailedResult(directoryInfo.FullName, e.Message)
+                       };
+            }
+
             var idOverrides = new IdentificationOverrides
             {
                 Author = author
@@ -233,8 +252,12 @@ namespace NzbDrone.Core.MediaFiles
                 importMode = (downloadClientItem == null || downloadClientItem.CanMoveFiles) ? ImportMode.Move : ImportMode.Copy;
             }
 
-            if (importMode == ImportMode.Move &&
-                importResults.Any(i => i.Result == ImportResultType.Imported) &&
+            var importSucceeded = importResults.Any(i => i.Result == ImportResultType.Imported);
+            _audiobookConversionService.Cleanup(conversionResult, importMode, importSucceeded);
+
+            if (!conversionResult.Converted &&
+                importMode == ImportMode.Move &&
+                importSucceeded &&
                 ShouldDeleteFolder(directoryInfo))
             {
                 _logger.Debug("Deleting folder after importing valid files");
@@ -309,9 +332,34 @@ namespace NzbDrone.Core.MediaFiles
                 AddNewAuthors = false
             };
 
-            var decisions = _importDecisionMaker.GetImportDecisions(new List<IFileInfo>() { fileInfo }, idOverrides, idInfo, idConfig);
+            var bookFiles = new List<IFileInfo>() { fileInfo };
+            AudiobookConversionResult conversionResult;
+            try
+            {
+                conversionResult = _audiobookConversionService.ConvertIfNeeded(fileInfo.FullName, bookFiles);
+                bookFiles = conversionResult.Files;
+            }
+            catch (AudiobookConversionException e)
+            {
+                _logger.Warn(e, "Unable to convert audiobook file to M4B: {0}", fileInfo.FullName);
+                return new List<ImportResult>
+                       {
+                           ConversionFailedResult(fileInfo.FullName, e.Message)
+                       };
+            }
 
-            return _importApprovedTracks.Import(decisions, true, downloadClientItem, importMode);
+            var decisions = _importDecisionMaker.GetImportDecisions(bookFiles, idOverrides, idInfo, idConfig);
+
+            var importResults = _importApprovedTracks.Import(decisions, true, downloadClientItem, importMode);
+
+            if (importMode == ImportMode.Auto)
+            {
+                importMode = (downloadClientItem == null || downloadClientItem.CanMoveFiles) ? ImportMode.Move : ImportMode.Copy;
+            }
+
+            _audiobookConversionService.Cleanup(conversionResult, importMode, importResults.Any(i => i.Result == ImportResultType.Imported));
+
+            return importResults;
         }
 
         private string GetCleanedUpFolderName(string folder)
@@ -333,6 +381,11 @@ namespace NzbDrone.Core.MediaFiles
             var localTrack = bookFile == null ? null : new LocalBook { Path = bookFile };
 
             return new ImportResult(new ImportDecision<LocalBook>(localTrack, new Rejection("Unknown Author")), message);
+        }
+
+        private ImportResult ConversionFailedResult(string bookFile, string message)
+        {
+            return new ImportResult(new ImportDecision<LocalBook>(new LocalBook { Path = bookFile }, new Rejection("M4B conversion failed")), message);
         }
 
         private void LogInaccessiblePathError(string path)
