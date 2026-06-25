@@ -5,6 +5,5 @@ namespace NzbDrone.Core.MediaFiles.AudiobookConversion
         public string Executable { get; set; }
         public string ArgumentsPrefix { get; set; }
         public string DisplayPath { get; set; }
-        public bool UsesBundledTool { get; set; }
     }
 }

@@ -8,13 +8,13 @@ namespace Readarr.Api.V1.Config
     {
         public bool IsReady { get; set; }
         public string ToolPath { get; set; }
-        public bool UsesBundledTool { get; set; }
         public List<M4bToolDependencyStatusItemResource> Dependencies { get; set; }
     }
 
     public class M4bToolDependencyStatusItemResource
     {
         public string Name { get; set; }
+        public bool Required { get; set; }
         public bool Available { get; set; }
         public string Version { get; set; }
         public string Error { get; set; }
@@ -28,7 +28,6 @@ namespace Readarr.Api.V1.Config
             {
                 IsReady = model.IsReady,
                 ToolPath = model.ToolPath,
-                UsesBundledTool = model.UsesBundledTool,
                 Dependencies = model.Dependencies.Select(ToResource).ToList()
             };
         }
@@ -38,6 +37,7 @@ namespace Readarr.Api.V1.Config
             return new M4bToolDependencyStatusItemResource
             {
                 Name = model.Name,
+                Required = model.Required,
                 Available = model.Available,
                 Version = model.Version,
                 Error = model.Error
