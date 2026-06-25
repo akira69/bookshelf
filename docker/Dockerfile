@@ -35,6 +35,8 @@ RUN --mount=type=bind,source=_output,target=_output \
     esac; \
     cp -r /_output/UI /app/readarr/bin/UI
 
+COPY distribution/tools/ /app/readarr/bin/Tools/
+
 RUN echo -e "UpdateMethod=docker\nBranch=${GIT_BRANCH}\nPackageVersion=${COMMIT_HASH}}\nPackageAuthor=pennydreadful" > /app/readarr/package_info && \
     printf "version: ${COMMIT_HASH}}\nBuild-date: ${BUILD_DATE}" > /build_version
 

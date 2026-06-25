@@ -112,6 +112,7 @@ PackageFiles()
     cp -r $outputFolder/$framework/$runtime/publish/* $folder
     cp -r $outputFolder/Readarr.Update/$framework/$runtime/publish $folder/Readarr.Update
     cp -r $outputFolder/UI $folder
+    cp -r distribution/tools $folder/Tools
 
     echo "Adding LICENSE"
     cp LICENSE.md $folder

@@ -259,7 +259,7 @@ namespace NzbDrone.Core.Configuration
 
         public string M4bConversionAudioCodec
         {
-            get { return GetValue("M4bConversionAudioCodec", "libfdk_aac"); }
+            get { return GetValue("M4bConversionAudioCodec", "aac"); }
 
             set { SetValue("M4bConversionAudioCodec", value); }
         }
