@@ -151,11 +151,7 @@ class MediaManagement extends Component {
     return (
       <Alert kind={m4bStatus.isReady ? kinds.SUCCESS : kinds.WARNING}>
         <div>
-          {
-            m4bStatus.usesBundledTool ?
-              translate('M4bDependencyStatusBundledTool', { toolPath: m4bStatus.toolPath }) :
-              translate('M4bDependencyStatusExternalTool', { toolPath: m4bStatus.toolPath })
-          }
+          {translate('M4bDependencyStatusTool', { toolPath: m4bStatus.toolPath })}
         </div>
 
         <ul>
@@ -167,7 +163,7 @@ class MediaManagement extends Component {
 
               return (
                 <li key={dependency.name}>
-                  {dependency.name}: {detail}
+                  {dependency.name}{dependency.required ? '' : ` (${translate('Optional')})`}: {detail}
                 </li>
               );
             })

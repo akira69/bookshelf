@@ -1,11 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.IO;
 using System.Linq;
 using NLog;
-using NzbDrone.Common.Disk;
-using NzbDrone.Common.EnvironmentInfo;
 using NzbDrone.Common.Extensions;
 using NzbDrone.Common.Processes;
 using NzbDrone.Core.Configuration;
@@ -23,20 +20,14 @@ namespace NzbDrone.Core.MediaFiles.AudiobookConversion
         private const string DefaultToolPath = "m4b-tool";
 
         private readonly IConfigService _configService;
-        private readonly IAppFolderInfo _appFolderInfo;
-        private readonly IDiskProvider _diskProvider;
         private readonly IProcessProvider _processProvider;
         private readonly Logger _logger;
 
         public M4bToolService(IConfigService configService,
-                              IAppFolderInfo appFolderInfo,
-                              IDiskProvider diskProvider,
                               IProcessProvider processProvider,
                               Logger logger)
         {
             _configService = configService;
-            _appFolderInfo = appFolderInfo;
-            _diskProvider = diskProvider;
             _processProvider = processProvider;
             _logger = logger;
         }
@@ -46,26 +37,13 @@ namespace NzbDrone.Core.MediaFiles.AudiobookConversion
             configuredPath = configuredPath.IsNullOrWhiteSpace() ? _configService.M4bToolPath : configuredPath;
             configuredPath = configuredPath.IsNullOrWhiteSpace() ? DefaultToolPath : configuredPath.Trim();
 
-            var bundledPath = GetBundledToolPath();
-            if (IsDefaultToolPath(configuredPath) && _diskProvider.FileExists(bundledPath))
-            {
-                return new M4bToolCommand
-                {
-                    Executable = "php",
-                    ArgumentsPrefix = Quote(bundledPath),
-                    DisplayPath = bundledPath,
-                    UsesBundledTool = true
-                };
-            }
-
             if (configuredPath.EndsWith(".phar", StringComparison.OrdinalIgnoreCase))
             {
                 return new M4bToolCommand
                 {
                     Executable = "php",
                     ArgumentsPrefix = Quote(configuredPath),
-                    DisplayPath = configuredPath,
-                    UsesBundledTool = false
+                    DisplayPath = configuredPath
                 };
             }
 
@@ -73,8 +51,7 @@ namespace NzbDrone.Core.MediaFiles.AudiobookConversion
             {
                 Executable = configuredPath,
                 ArgumentsPrefix = string.Empty,
-                DisplayPath = configuredPath,
-                UsesBundledTool = false
+                DisplayPath = configuredPath
             };
         }
 
@@ -83,33 +60,33 @@ namespace NzbDrone.Core.MediaFiles.AudiobookConversion
             var command = GetCommand(configuredPath);
             var dependencies = new List<M4bToolDependencyStatusItem>
             {
-                CheckM4bTool(command),
-                CheckExecutable("php", "--version", "PHP"),
-                CheckExecutable("ffmpeg", "-version", "FFmpeg"),
-                CheckExecutable("ffprobe", "-version", "FFprobe"),
-                CheckExecutable("mp4chaps", "--version", "mp4chaps")
+                CheckM4bTool(command, true),
+                CheckExecutable("php", "--version", "PHP", true),
+                CheckExecutable("ffmpeg", "-version", "FFmpeg", true),
+                CheckExecutable("ffprobe", "-version", "FFprobe", true),
+                CheckExecutable("mp4chaps", "--version", "mp4chaps", false)
             };
 
             return new M4bToolDependencyStatus
             {
                 ToolPath = command.DisplayPath,
-                UsesBundledTool = command.UsesBundledTool,
                 Dependencies = dependencies,
-                IsReady = dependencies.All(d => d.Available)
+                IsReady = dependencies.Where(d => d.Required).All(d => d.Available)
             };
         }
 
-        private M4bToolDependencyStatusItem CheckM4bTool(M4bToolCommand command)
+        private M4bToolDependencyStatusItem CheckM4bTool(M4bToolCommand command, bool required)
         {
             var args = JoinArguments(command.ArgumentsPrefix, "--version");
-            return CheckExecutable(command.Executable, args, "m4b-tool");
+            return CheckExecutable(command.Executable, args, "m4b-tool", required);
         }
 
-        private M4bToolDependencyStatusItem CheckExecutable(string executable, string args, string name)
+        private M4bToolDependencyStatusItem CheckExecutable(string executable, string args, string name, bool required)
         {
             var item = new M4bToolDependencyStatusItem
             {
-                Name = name
+                Name = name,
+                Required = required
             };
 
             try
@@ -153,14 +130,5 @@ namespace NzbDrone.Core.MediaFiles.AudiobookConversion
             return $"\"{value.Replace("\"", "\\\"")}\"";
         }
 
-        private string GetBundledToolPath()
-        {
-            return Path.Combine(_appFolderInfo.StartUpFolder, "Tools", "m4b-tool", "m4b-tool.phar");
-        }
-
-        private static bool IsDefaultToolPath(string configuredPath)
-        {
-            return configuredPath.Equals(DefaultToolPath, StringComparison.OrdinalIgnoreCase);
-        }
     }
 }
