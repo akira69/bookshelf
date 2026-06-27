@@ -2,6 +2,7 @@
 // Please do not change this file!
 interface CssExports {
   'm4bConversionOptions': string;
+  'm4bExistingConversion': string;
 }
 export const cssExports: CssExports;
 export default cssExports;
