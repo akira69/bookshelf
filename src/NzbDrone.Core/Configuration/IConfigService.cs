@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using NzbDrone.Common.Http.Proxy;
 using NzbDrone.Core.MediaFiles;
+using NzbDrone.Core.MediaFiles.AudiobookConversion;
 using NzbDrone.Core.Qualities;
 using NzbDrone.Core.Security;
 
@@ -34,6 +35,19 @@ namespace NzbDrone.Core.Configuration
         bool CopyUsingHardlinks { get; set; }
         bool ImportExtraFiles { get; set; }
         string ExtraFileExtensions { get; set; }
+        bool ConvertAudiobooksToM4b { get; set; }
+        string M4bToolPath { get; set; }
+        string M4bConversionWorkingDirectory { get; set; }
+        M4bConversionSourceAction M4bConversionSourceAction { get; set; }
+        int M4bConversionJobs { get; set; }
+        string M4bConversionAudioCodec { get; set; }
+        string M4bConversionAudioBitrate { get; set; }
+        M4bConversionAudioChannels M4bConversionAudioChannels { get; set; }
+        bool M4bConversionUseSidecarChapters { get; set; }
+        bool M4bConversionUseSourceCover { get; set; }
+        bool M4bConversionUseFilenamesAsChapters { get; set; }
+        bool M4bConversionNoChapterReindexing { get; set; }
+        string M4bConversionExtraArguments { get; set; }
         bool WatchLibraryForChanges { get; set; }
         RescanAfterRefreshType RescanAfterRefresh { get; set; }
         AllowFingerprinting AllowFingerprinting { get; set; }
