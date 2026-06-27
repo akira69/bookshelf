@@ -14,21 +14,23 @@ if command -v apt-get >/dev/null 2>&1; then
   if [ -n "$MP4V2_CANDIDATE" ] && [ "$MP4V2_CANDIDATE" != "(none)" ]; then
     $SUDO apt-get install -y mp4v2-utils
   else
-    echo "mp4v2-utils is not available from this apt repository; mp4chaps support will be skipped."
+    echo "mp4v2-utils is not available from this apt repository; optional mp4chaps support will be skipped."
+    echo "M4B conversion can still run without mp4chaps. Install mp4v2-utils from your distribution or build mp4v2 manually if you need mp4chaps."
   fi
 elif command -v apk >/dev/null 2>&1; then
   $SUDO apk add --no-cache ca-certificates curl ffmpeg php php-intl php-mbstring php-simplexml php-xml
   if apk info -e mp4v2 >/dev/null 2>&1 || apk search -x mp4v2 >/dev/null 2>&1; then
     $SUDO apk add --no-cache mp4v2
   else
-    echo "mp4v2 is not available from this apk repository; mp4chaps support will be skipped."
+    echo "mp4v2 is not available from this apk repository; optional mp4chaps support will be skipped."
+    echo "M4B conversion can still run without mp4chaps. Install mp4v2 from your distribution or build mp4v2 manually if you need mp4chaps."
   fi
 elif command -v dnf >/dev/null 2>&1; then
   $SUDO dnf install -y ca-certificates curl ffmpeg php-cli php-intl php-mbstring php-xml
-  $SUDO dnf install -y mp4v2-utils || echo "mp4v2-utils is not available; mp4chaps support will be skipped."
+  $SUDO dnf install -y mp4v2-utils || echo "mp4v2-utils is not available; optional mp4chaps support will be skipped. M4B conversion can still run without mp4chaps."
 elif command -v yum >/dev/null 2>&1; then
   $SUDO yum install -y ca-certificates curl ffmpeg php-cli php-intl php-mbstring php-xml
-  $SUDO yum install -y mp4v2-utils || echo "mp4v2-utils is not available; mp4chaps support will be skipped."
+  $SUDO yum install -y mp4v2-utils || echo "mp4v2-utils is not available; optional mp4chaps support will be skipped. M4B conversion can still run without mp4chaps."
 else
   echo "Unsupported package manager. Install ffmpeg, ffprobe, PHP CLI with intl, mbstring, and xml extensions, then install m4b-tool." >&2
   exit 1

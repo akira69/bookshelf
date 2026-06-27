@@ -64,7 +64,7 @@ namespace NzbDrone.Core.MediaFiles.AudiobookConversion
                 CheckExecutable("php", "--version", "PHP", true),
                 CheckExecutable("ffmpeg", "-version", "FFmpeg", true),
                 CheckExecutable("ffprobe", "-version", "FFprobe", true),
-                CheckExecutable("mp4chaps", "--version", "mp4chaps", false)
+                CheckExecutable("mp4chaps", "--version", "mp4chaps", false, "Install mp4v2-utils or mp4v2 if your operating system provides it. Ubuntu 24.04 default apt repositories do not currently provide mp4v2-utils; M4B conversion can still run without mp4chaps.")
             };
 
             return new M4bToolDependencyStatus
@@ -81,12 +81,13 @@ namespace NzbDrone.Core.MediaFiles.AudiobookConversion
             return CheckExecutable(command.Executable, args, "m4b-tool", required);
         }
 
-        private M4bToolDependencyStatusItem CheckExecutable(string executable, string args, string name, bool required)
+        private M4bToolDependencyStatusItem CheckExecutable(string executable, string args, string name, bool required, string installHint = null)
         {
             var item = new M4bToolDependencyStatusItem
             {
                 Name = name,
-                Required = required
+                Required = required,
+                InstallHint = installHint
             };
 
             try
@@ -108,7 +109,7 @@ namespace NzbDrone.Core.MediaFiles.AudiobookConversion
             catch (Win32Exception ex)
             {
                 item.Available = false;
-                item.Error = ex.Message;
+                item.Error = required ? ex.Message : "Not installed";
             }
             catch (Exception ex)
             {

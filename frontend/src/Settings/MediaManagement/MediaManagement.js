@@ -128,6 +128,18 @@ class MediaManagement extends Component {
     });
   };
 
+  getM4bDependencyDetail(dependency) {
+    if (dependency.available) {
+      return dependency.version || translate('M4bDependencyStatusAvailable');
+    }
+
+    if (dependency.required) {
+      return dependency.error || translate('M4bDependencyStatusMissing');
+    }
+
+    return translate('M4bDependencyStatusOptionalMissing');
+  }
+
   renderM4bDependencyStatus() {
     const {
       isFetchingM4bStatus,
@@ -164,13 +176,14 @@ class MediaManagement extends Component {
         <ul>
           {
             m4bStatus.dependencies.map((dependency) => {
-              const detail = dependency.available ?
-                dependency.version || translate('M4bDependencyStatusAvailable') :
-                dependency.error || translate('M4bDependencyStatusMissing');
+              const detail = this.getM4bDependencyDetail(dependency);
+              const installHint = !dependency.available && dependency.installHint ?
+                ` ${dependency.installHint}` :
+                '';
 
               return (
                 <li key={dependency.name}>
-                  {dependency.name}{dependency.required ? '' : ` (${translate('Optional')})`}: {detail}
+                  {dependency.name}{dependency.required ? '' : ` (${translate('Optional')})`}: {detail}{installHint}
                 </li>
               );
             })

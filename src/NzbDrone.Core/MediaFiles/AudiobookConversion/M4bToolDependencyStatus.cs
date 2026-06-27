@@ -16,5 +16,6 @@ namespace NzbDrone.Core.MediaFiles.AudiobookConversion
         public bool Available { get; set; }
         public string Version { get; set; }
         public string Error { get; set; }
+        public string InstallHint { get; set; }
     }
 }
