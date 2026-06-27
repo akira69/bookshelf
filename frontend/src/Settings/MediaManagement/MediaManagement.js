@@ -5,8 +5,11 @@ import FieldSet from 'Components/FieldSet';
 import Form from 'Components/Form/Form';
 import FormGroup from 'Components/Form/FormGroup';
 import FormInputGroup from 'Components/Form/FormInputGroup';
+import FormInputHelpText from 'Components/Form/FormInputHelpText';
 import FormLabel from 'Components/Form/FormLabel';
+import SpinnerButton from 'Components/Link/SpinnerButton';
 import LoadingIndicator from 'Components/Loading/LoadingIndicator';
+import ConfirmModal from 'Components/Modal/ConfirmModal';
 import PageContent from 'Components/Page/PageContent';
 import PageContentBody from 'Components/Page/PageContentBody';
 import { inputTypes, kinds, sizes } from 'Helpers/Props';
@@ -61,7 +64,8 @@ class MediaManagement extends Component {
     this.state = {
       isFetchingM4bStatus: false,
       m4bStatus: null,
-      m4bStatusError: null
+      m4bStatusError: null,
+      isConvertExistingAudioModalOpen: false
     };
   }
 
@@ -140,6 +144,19 @@ class MediaManagement extends Component {
     return translate('M4bDependencyStatusOptionalMissing');
   }
 
+  onConvertExistingAudioPress = () => {
+    this.setState({ isConvertExistingAudioModalOpen: true });
+  };
+
+  onConvertExistingAudioConfirm = () => {
+    this.setState({ isConvertExistingAudioModalOpen: false });
+    this.props.onConvertExistingAudioToM4bPress();
+  };
+
+  onConvertExistingAudioCancel = () => {
+    this.setState({ isConvertExistingAudioModalOpen: false });
+  };
+
   renderM4bDependencyStatus() {
     const {
       isFetchingM4bStatus,
@@ -204,10 +221,19 @@ class MediaManagement extends Component {
       settings,
       hasSettings,
       isWindows,
+      isConvertingExistingAudioToM4b,
       onInputChange,
       onSavePress,
       ...otherProps
     } = this.props;
+
+    const {
+      isFetchingM4bStatus,
+      m4bStatus
+    } = this.state;
+    const isM4bConversionEnabled = settings.convertAudiobooksToM4b?.value;
+    const isM4bConversionReady = isM4bConversionEnabled && m4bStatus?.isReady;
+    const isConvertExistingAudioDisabled = !isM4bConversionReady || isFetchingM4bStatus || isConvertingExistingAudioToM4b;
 
     return (
       <PageContent title={translate('MediaManagementSettings')}>
@@ -423,6 +449,30 @@ class MediaManagement extends Component {
                             </FormGroup>
 
                             {this.renderM4bDependencyStatus()}
+
+                            <FormGroup
+                              advancedSettings={advancedSettings}
+                              isAdvanced={true}
+                            >
+                              <FormLabel>
+                                {translate('M4bConvertExistingAudio')}
+                              </FormLabel>
+
+                              <div className={styles.m4bExistingConversion}>
+                                <SpinnerButton
+                                  kind={kinds.PRIMARY}
+                                  isSpinning={isConvertingExistingAudioToM4b}
+                                  isDisabled={isConvertExistingAudioDisabled}
+                                  onPress={this.onConvertExistingAudioPress}
+                                >
+                                  {translate('M4bConvertExistingAudio')}
+                                </SpinnerButton>
+
+                                <FormInputHelpText
+                                  text={translate('M4bConvertExistingAudioHelpText')}
+                                />
+                              </div>
+                            </FormGroup>
 
                             <FormGroup
                               advancedSettings={advancedSettings}
@@ -814,6 +864,17 @@ class MediaManagement extends Component {
               </Form>
           }
         </PageContentBody>
+
+        <ConfirmModal
+          isOpen={this.state.isConvertExistingAudioModalOpen}
+          kind={kinds.PRIMARY}
+          title={translate('M4bConvertExistingAudio')}
+          message={translate('M4bConvertExistingAudioModalMessage')}
+          confirmLabel={translate('M4bConvertExistingAudio')}
+          cancelLabel={translate('Cancel')}
+          onConfirm={this.onConvertExistingAudioConfirm}
+          onCancel={this.onConvertExistingAudioCancel}
+        />
       </PageContent>
     );
   }
@@ -827,8 +888,10 @@ MediaManagement.propTypes = {
   settings: PropTypes.object.isRequired,
   hasSettings: PropTypes.bool.isRequired,
   isWindows: PropTypes.bool.isRequired,
+  isConvertingExistingAudioToM4b: PropTypes.bool.isRequired,
   onSavePress: PropTypes.func.isRequired,
-  onInputChange: PropTypes.func.isRequired
+  onInputChange: PropTypes.func.isRequired,
+  onConvertExistingAudioToM4bPress: PropTypes.func.isRequired
 };
 
 export default MediaManagement;

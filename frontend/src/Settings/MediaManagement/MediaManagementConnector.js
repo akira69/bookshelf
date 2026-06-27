@@ -3,8 +3,11 @@ import PropTypes from 'prop-types';
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { createSelector } from 'reselect';
+import * as commandNames from 'Commands/commandNames';
 import { clearPendingChanges } from 'Store/Actions/baseActions';
+import { executeCommand } from 'Store/Actions/commandActions';
 import { fetchMediaManagementSettings, saveMediaManagementSettings, saveNamingSettings, setMediaManagementSettingsValue } from 'Store/Actions/settingsActions';
+import createCommandExecutingSelector from 'Store/Selectors/createCommandExecutingSelector';
 import createSettingsSectionSelector from 'Store/Selectors/createSettingsSectionSelector';
 import createSystemStatusSelector from 'Store/Selectors/createSystemStatusSelector';
 import MediaManagement from './MediaManagement';
@@ -17,12 +20,14 @@ function createMapStateToProps() {
     (state) => state.settings.naming,
     createSettingsSectionSelector(SECTION),
     createSystemStatusSelector(),
-    (advancedSettings, namingSettings, sectionSettings, systemStatus) => {
+    createCommandExecutingSelector(commandNames.CONVERT_EXISTING_AUDIO_TO_M4B, { all: true }),
+    (advancedSettings, namingSettings, sectionSettings, systemStatus, isConvertingExistingAudioToM4b) => {
       return {
         advancedSettings,
         ...sectionSettings,
         hasPendingChanges: !_.isEmpty(namingSettings.pendingChanges) || sectionSettings.hasPendingChanges,
-        isWindows: systemStatus.isWindows
+        isWindows: systemStatus.isWindows,
+        isConvertingExistingAudioToM4b
       };
     }
   );
@@ -33,7 +38,8 @@ const mapDispatchToProps = {
   setMediaManagementSettingsValue,
   saveMediaManagementSettings,
   saveNamingSettings,
-  clearPendingChanges
+  clearPendingChanges,
+  dispatchExecuteCommand: executeCommand
 };
 
 class MediaManagementConnector extends Component {
@@ -61,6 +67,13 @@ class MediaManagementConnector extends Component {
     this.props.saveNamingSettings();
   };
 
+  onConvertExistingAudioToM4bPress = () => {
+    this.props.dispatchExecuteCommand({
+      name: commandNames.CONVERT_EXISTING_AUDIO_TO_M4B,
+      all: true
+    });
+  };
+
   //
   // Render
 
@@ -69,6 +82,7 @@ class MediaManagementConnector extends Component {
       <MediaManagement
         onInputChange={this.onInputChange}
         onSavePress={this.onSavePress}
+        onConvertExistingAudioToM4bPress={this.onConvertExistingAudioToM4bPress}
         {...this.props}
       />
     );
@@ -80,7 +94,8 @@ MediaManagementConnector.propTypes = {
   setMediaManagementSettingsValue: PropTypes.func.isRequired,
   saveMediaManagementSettings: PropTypes.func.isRequired,
   saveNamingSettings: PropTypes.func.isRequired,
-  clearPendingChanges: PropTypes.func.isRequired
+  clearPendingChanges: PropTypes.func.isRequired,
+  dispatchExecuteCommand: PropTypes.func.isRequired
 };
 
 export default connect(createMapStateToProps, mapDispatchToProps)(MediaManagementConnector);
