@@ -35,6 +35,7 @@ namespace Readarr.Api.V1.Config
         public int M4bConversionJobs { get; set; }
         public string M4bConversionAudioCodec { get; set; }
         public string M4bConversionAudioBitrate { get; set; }
+        public M4bConversionAudioChannels M4bConversionAudioChannels { get; set; }
         public bool M4bConversionUseFilenamesAsChapters { get; set; }
         public bool M4bConversionNoChapterReindexing { get; set; }
         public bool M4bConversionSkipCover { get; set; }
@@ -74,6 +75,7 @@ namespace Readarr.Api.V1.Config
                 M4bConversionJobs = model.M4bConversionJobs,
                 M4bConversionAudioCodec = model.M4bConversionAudioCodec,
                 M4bConversionAudioBitrate = model.M4bConversionAudioBitrate,
+                M4bConversionAudioChannels = model.M4bConversionAudioChannels,
                 M4bConversionUseFilenamesAsChapters = model.M4bConversionUseFilenamesAsChapters,
                 M4bConversionNoChapterReindexing = model.M4bConversionNoChapterReindexing,
                 M4bConversionSkipCover = model.M4bConversionSkipCover,

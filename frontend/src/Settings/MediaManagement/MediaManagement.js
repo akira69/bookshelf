@@ -16,6 +16,7 @@ import createAjaxRequest from 'Utilities/createAjaxRequest';
 import translate from 'Utilities/String/translate';
 import NamingConnector from './Naming/NamingConnector';
 import RootFoldersConnector from './RootFolder/RootFoldersConnector';
+import styles from './MediaManagement.css';
 
 const rescanAfterRefreshOptions = [
   { key: 'always', value: 'Always' },
@@ -41,9 +42,15 @@ const fileDateOptions = [
 ];
 
 const m4bConversionSourceActionOptions = [
-  { key: 'followImportMode', value: 'Follow Import Mode' },
-  { key: 'keep', value: 'Keep Sources' },
-  { key: 'delete', value: 'Delete Sources' }
+  { key: 'followImportMode', value: 'Match Bookshelf Import Mode' },
+  { key: 'keep', value: 'Always Keep Source Files' },
+  { key: 'delete', value: 'Delete Source Files After Import' }
+];
+
+const m4bConversionAudioChannelsOptions = [
+  { key: 'followSource', value: 'Follow Source' },
+  { key: 'mono', value: 'Mono' },
+  { key: 'stereo', value: 'Stereo' }
 ];
 
 class MediaManagement extends Component {
@@ -494,18 +501,18 @@ class MediaManagement extends Component {
                             <FormGroup
                               advancedSettings={advancedSettings}
                               isAdvanced={true}
-                              size={sizes.MEDIUM}
                             >
                               <FormLabel>
-                                {translate('M4bConversionUseFilenamesAsChapters')}
+                                {translate('M4bConversionAudioChannels')}
                               </FormLabel>
 
                               <FormInputGroup
-                                type={inputTypes.CHECK}
-                                name="m4bConversionUseFilenamesAsChapters"
-                                helpText={translate('M4bConversionUseFilenamesAsChaptersHelpText')}
+                                type={inputTypes.SELECT}
+                                name="m4bConversionAudioChannels"
+                                helpText={translate('M4bConversionAudioChannelsHelpText')}
+                                values={m4bConversionAudioChannelsOptions}
                                 onChange={onInputChange}
-                                {...settings.m4bConversionUseFilenamesAsChapters}
+                                {...settings.m4bConversionAudioChannels}
                               />
                             </FormGroup>
 
@@ -515,34 +522,34 @@ class MediaManagement extends Component {
                               size={sizes.MEDIUM}
                             >
                               <FormLabel>
-                                {translate('M4bConversionNoChapterReindexing')}
+                                {translate('M4bConversionOptions')}
                               </FormLabel>
 
-                              <FormInputGroup
-                                type={inputTypes.CHECK}
-                                name="m4bConversionNoChapterReindexing"
-                                helpText={translate('M4bConversionNoChapterReindexingHelpText')}
-                                onChange={onInputChange}
-                                {...settings.m4bConversionNoChapterReindexing}
-                              />
-                            </FormGroup>
+                              <div className={styles.m4bConversionOptions}>
+                                <FormInputGroup
+                                  type={inputTypes.CHECK}
+                                  name="m4bConversionUseFilenamesAsChapters"
+                                  helpText={translate('M4bConversionUseFilenamesAsChapters')}
+                                  onChange={onInputChange}
+                                  {...settings.m4bConversionUseFilenamesAsChapters}
+                                />
 
-                            <FormGroup
-                              advancedSettings={advancedSettings}
-                              isAdvanced={true}
-                              size={sizes.MEDIUM}
-                            >
-                              <FormLabel>
-                                {translate('M4bConversionSkipCover')}
-                              </FormLabel>
+                                <FormInputGroup
+                                  type={inputTypes.CHECK}
+                                  name="m4bConversionNoChapterReindexing"
+                                  helpText={translate('M4bConversionNoChapterReindexing')}
+                                  onChange={onInputChange}
+                                  {...settings.m4bConversionNoChapterReindexing}
+                                />
 
-                              <FormInputGroup
-                                type={inputTypes.CHECK}
-                                name="m4bConversionSkipCover"
-                                helpText={translate('M4bConversionSkipCoverHelpText')}
-                                onChange={onInputChange}
-                                {...settings.m4bConversionSkipCover}
-                              />
+                                <FormInputGroup
+                                  type={inputTypes.CHECK}
+                                  name="m4bConversionSkipCover"
+                                  helpText={translate('M4bConversionSkipCover')}
+                                  onChange={onInputChange}
+                                  {...settings.m4bConversionSkipCover}
+                                />
+                              </div>
                             </FormGroup>
 
                             <FormGroup

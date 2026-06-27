@@ -271,6 +271,13 @@ namespace NzbDrone.Core.Configuration
             set { SetValue("M4bConversionAudioBitrate", value); }
         }
 
+        public M4bConversionAudioChannels M4bConversionAudioChannels
+        {
+            get { return GetValueEnum("M4bConversionAudioChannels", M4bConversionAudioChannels.FollowSource); }
+
+            set { SetValue("M4bConversionAudioChannels", value); }
+        }
+
         public bool M4bConversionUseFilenamesAsChapters
         {
             get { return GetValueBoolean("M4bConversionUseFilenamesAsChapters", true); }
