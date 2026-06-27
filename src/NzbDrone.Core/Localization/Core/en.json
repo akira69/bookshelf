@@ -1117,6 +1117,7 @@
   "M4bDependencyStatusChecking": "Checking M4B conversion dependencies...",
   "M4bDependencyStatusLoadError": "Unable to check M4B conversion dependencies",
   "M4bDependencyStatusMissing": "missing",
+  "M4bDependencyStatusOptionalMissing": "not installed; optional.",
   "M4bDependencyStatusTool": "Using m4b-tool: {toolPath}",
   "Optional": "Optional",
   "UseHardlinksInsteadOfCopy": "Use Hardlinks instead of Copy",

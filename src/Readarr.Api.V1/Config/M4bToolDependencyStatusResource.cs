@@ -18,6 +18,7 @@ namespace Readarr.Api.V1.Config
         public bool Available { get; set; }
         public string Version { get; set; }
         public string Error { get; set; }
+        public string InstallHint { get; set; }
     }
 
     public static class M4bToolDependencyStatusResourceMapper
@@ -40,7 +41,8 @@ namespace Readarr.Api.V1.Config
                 Required = model.Required,
                 Available = model.Available,
                 Version = model.Version,
-                Error = model.Error
+                Error = model.Error,
+                InstallHint = model.InstallHint
             };
         }
     }
