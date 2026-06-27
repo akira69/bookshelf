@@ -35,6 +35,13 @@ namespace NzbDrone.Core.MediaFiles.AudiobookConversion
             ".vorbis"
         };
 
+        private static readonly string[] SidecarCoverFileNames =
+        {
+            "cover.jpg",
+            "cover.jpeg",
+            "cover.png"
+        };
+
         private readonly IConfigService _configService;
         private readonly IDiskProvider _diskProvider;
         private readonly IProcessProvider _processProvider;
@@ -110,6 +117,8 @@ namespace NzbDrone.Core.MediaFiles.AudiobookConversion
                     var target = Path.Combine(inputDir, $"{i + 1:0000} - {Path.GetFileName(source)}");
                     _diskProvider.CopyFile(source, target, true);
                 }
+
+                CopySidecarFiles(sourcePath, audioFiles, inputDir);
 
                 var outputFile = Path.Combine(outputDir, $"{SafeFileName(Path.GetFileNameWithoutExtension(sourcePath))}.m4b");
                 var logFile = Path.Combine(outputDir, $"{SafeFileName(Path.GetFileNameWithoutExtension(sourcePath))}.log");
@@ -197,7 +206,7 @@ namespace NzbDrone.Core.MediaFiles.AudiobookConversion
                 args.Add($"--audio-bitrate={QuoteValue(bitrate)}");
             }
 
-            if (_configService.M4bConversionSkipCover)
+            if (!_configService.M4bConversionUseSourceCover)
             {
                 args.Add("--skip-cover");
             }
@@ -236,6 +245,75 @@ namespace NzbDrone.Core.MediaFiles.AudiobookConversion
             }
 
             return args.ConcatToString(" ");
+        }
+
+        private void CopySidecarFiles(string sourcePath, List<IFileInfo> sourceFiles, string inputDir)
+        {
+            var sidecarDir = GetSidecarDirectory(sourcePath, sourceFiles);
+            if (sidecarDir.IsNullOrWhiteSpace())
+            {
+                return;
+            }
+
+            if (_configService.M4bConversionUseSidecarChapters)
+            {
+                CopySidecarFile(sidecarDir, "chapters.txt", inputDir);
+            }
+
+            // m4b-tool merge also imports description.txt as the short description metadata.
+            CopySidecarFile(sidecarDir, "description.txt", inputDir);
+
+            if (_configService.M4bConversionUseSourceCover)
+            {
+                foreach (var coverFileName in SidecarCoverFileNames)
+                {
+                    if (CopySidecarFile(sidecarDir, coverFileName, inputDir))
+                    {
+                        break;
+                    }
+                }
+            }
+        }
+
+        private string GetSidecarDirectory(string sourcePath, List<IFileInfo> sourceFiles)
+        {
+            if (sourcePath.IsNotNullOrWhiteSpace())
+            {
+                if (_diskProvider.FolderExists(sourcePath))
+                {
+                    return sourcePath;
+                }
+
+                if (_diskProvider.FileExists(sourcePath))
+                {
+                    return Path.GetDirectoryName(sourcePath);
+                }
+            }
+
+            var sourceDirectories = sourceFiles
+                .Select(f => Path.GetDirectoryName(f.FullName))
+                .Where(d => d.IsNotNullOrWhiteSpace())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            return sourceDirectories.Count == 1 ? sourceDirectories[0] : null;
+        }
+
+        private bool CopySidecarFile(string sidecarDir, string fileName, string inputDir)
+        {
+            var source = _diskProvider.GetFiles(sidecarDir, false)
+                .FirstOrDefault(f => Path.GetFileName(f).Equals(fileName, StringComparison.OrdinalIgnoreCase));
+
+            if (source.IsNullOrWhiteSpace())
+            {
+                return false;
+            }
+
+            var target = Path.Combine(inputDir, fileName);
+            _logger.Debug("Copying M4B conversion sidecar file: {0}", source);
+            _diskProvider.CopyFile(source, target, true);
+
+            return true;
         }
 
         private string GetAutoBitrate(List<IFileInfo> sourceFiles)
