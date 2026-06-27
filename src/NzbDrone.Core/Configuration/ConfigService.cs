@@ -278,6 +278,20 @@ namespace NzbDrone.Core.Configuration
             set { SetValue("M4bConversionAudioChannels", value); }
         }
 
+        public bool M4bConversionUseSidecarChapters
+        {
+            get { return GetValueBoolean("M4bConversionUseSidecarChapters", true); }
+
+            set { SetValue("M4bConversionUseSidecarChapters", value); }
+        }
+
+        public bool M4bConversionUseSourceCover
+        {
+            get { return GetValueBoolean("M4bConversionUseSourceCover", true); }
+
+            set { SetValue("M4bConversionUseSourceCover", value); }
+        }
+
         public bool M4bConversionUseFilenamesAsChapters
         {
             get { return GetValueBoolean("M4bConversionUseFilenamesAsChapters", true); }
@@ -290,13 +304,6 @@ namespace NzbDrone.Core.Configuration
             get { return GetValueBoolean("M4bConversionNoChapterReindexing", true); }
 
             set { SetValue("M4bConversionNoChapterReindexing", value); }
-        }
-
-        public bool M4bConversionSkipCover
-        {
-            get { return GetValueBoolean("M4bConversionSkipCover", true); }
-
-            set { SetValue("M4bConversionSkipCover", value); }
         }
 
         public string M4bConversionExtraArguments

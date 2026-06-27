@@ -528,6 +528,14 @@ class MediaManagement extends Component {
                               <div className={styles.m4bConversionOptions}>
                                 <FormInputGroup
                                   type={inputTypes.CHECK}
+                                  name="m4bConversionUseSidecarChapters"
+                                  helpText={translate('M4bConversionUseSidecarChapters')}
+                                  onChange={onInputChange}
+                                  {...settings.m4bConversionUseSidecarChapters}
+                                />
+
+                                <FormInputGroup
+                                  type={inputTypes.CHECK}
                                   name="m4bConversionUseFilenamesAsChapters"
                                   helpText={translate('M4bConversionUseFilenamesAsChapters')}
                                   onChange={onInputChange}
@@ -544,10 +552,10 @@ class MediaManagement extends Component {
 
                                 <FormInputGroup
                                   type={inputTypes.CHECK}
-                                  name="m4bConversionSkipCover"
-                                  helpText={translate('M4bConversionSkipCover')}
+                                  name="m4bConversionUseSourceCover"
+                                  helpText={translate('M4bConversionUseSourceCover')}
                                   onChange={onInputChange}
-                                  {...settings.m4bConversionSkipCover}
+                                  {...settings.m4bConversionUseSourceCover}
                                 />
                               </div>
                             </FormGroup>
