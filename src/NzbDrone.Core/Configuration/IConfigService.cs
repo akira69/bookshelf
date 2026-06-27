@@ -42,6 +42,7 @@ namespace NzbDrone.Core.Configuration
         int M4bConversionJobs { get; set; }
         string M4bConversionAudioCodec { get; set; }
         string M4bConversionAudioBitrate { get; set; }
+        M4bConversionAudioChannels M4bConversionAudioChannels { get; set; }
         bool M4bConversionUseFilenamesAsChapters { get; set; }
         bool M4bConversionNoChapterReindexing { get; set; }
         bool M4bConversionSkipCover { get; set; }

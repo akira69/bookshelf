@@ -217,6 +217,11 @@ namespace NzbDrone.Core.MediaFiles.AudiobookConversion
                 args.Add($"--audio-codec={QuoteValue(_configService.M4bConversionAudioCodec)}");
             }
 
+            if (_configService.M4bConversionAudioChannels != M4bConversionAudioChannels.FollowSource)
+            {
+                args.Add($"--audio-channels={(int)_configService.M4bConversionAudioChannels}");
+            }
+
             if (_configService.M4bConversionJobs > 0)
             {
                 args.Add($"--jobs={_configService.M4bConversionJobs}");
