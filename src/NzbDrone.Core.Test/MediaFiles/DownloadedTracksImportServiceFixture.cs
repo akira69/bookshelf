@@ -12,6 +12,7 @@ using NzbDrone.Core.Books;
 using NzbDrone.Core.Download;
 using NzbDrone.Core.Download.TrackedDownloads;
 using NzbDrone.Core.MediaFiles;
+using NzbDrone.Core.MediaFiles.AudiobookConversion;
 using NzbDrone.Core.MediaFiles.BookImport;
 using NzbDrone.Core.Parser;
 using NzbDrone.Core.Parser.Model;
@@ -39,6 +40,10 @@ namespace NzbDrone.Core.Test.MediaFiles
 
             Mocker.GetMock<IDiskScanService>().Setup(c => c.FilterFiles(It.IsAny<string>(), It.IsAny<IEnumerable<IFileInfo>>()))
                   .Returns<string, IEnumerable<IFileInfo>>((b, s) => s.ToList());
+
+            Mocker.GetMock<IAudiobookConversionService>()
+                  .Setup(s => s.ConvertIfNeeded(It.IsAny<string>(), It.IsAny<List<IFileInfo>>()))
+                  .Returns<string, List<IFileInfo>>((path, files) => new AudiobookConversionResult(files));
 
             Mocker.GetMock<IImportApprovedBooks>()
                   .Setup(s => s.Import(It.IsAny<List<ImportDecision<LocalBook>>>(), true, null, ImportMode.Auto))
