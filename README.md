@@ -26,6 +26,25 @@ provider. This metadata is higher quality but isn't backward-compatible; if
 you're already running Readarr you'll need to redeploy this from scratch.
 Goodreads list imports haven't been tested and likely don't work.
 
+## Automatic M4B Conversion
+
+Bookshelf can combine incoming audiobook files into a single M4B before
+importing them. To enable it, install `m4b-tool`, PHP, FFmpeg, and FFprobe in
+the Bookshelf environment, then turn on **Convert Audiobooks to M4B** under
+**Settings > Media Management**. The m4b-tool path defaults to `m4b-tool` on
+`PATH`; you can also configure a custom executable path or a `.phar` file.
+`mp4chaps` is optional, but can provide additional chapter support.
+
+The same settings include audio bitrate, codec, channel layout, conversion
+jobs, chapter options, source artwork, and extra m4b-tool arguments. Sidecar
+`chapters.txt`, `description.txt`, and cover images are used when available.
+Converted source files can be kept, deleted after a successful import, or
+handled according to the import mode.
+
+To convert audiobooks that are already in your library, enable conversion and
+use **Convert Existing Audio to M4B** in the same settings page. Books already
+stored as a single M4B are skipped.
+
 ## Support
 
 This project won't use Discord for support. If you have a problem please file
