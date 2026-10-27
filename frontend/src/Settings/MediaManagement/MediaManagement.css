@@ -1,0 +1,12 @@
+.m4bConversionOptions {
+  flex: 1 1 auto;
+  user-select: none;
+
+  & > div {
+    margin-bottom: 8px;
+  }
+}
+
+.m4bExistingConversion {
+  flex: 1 1 auto;
+}

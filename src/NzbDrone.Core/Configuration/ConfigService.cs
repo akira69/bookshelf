@@ -9,6 +9,7 @@ using NzbDrone.Common.Http.Proxy;
 using NzbDrone.Core.Configuration.Events;
 using NzbDrone.Core.Languages;
 using NzbDrone.Core.MediaFiles;
+using NzbDrone.Core.MediaFiles.AudiobookConversion;
 using NzbDrone.Core.Messaging.Events;
 using NzbDrone.Core.Qualities;
 using NzbDrone.Core.Security;
@@ -219,6 +220,97 @@ namespace NzbDrone.Core.Configuration
             get { return GetValue("ExtraFileExtensions", "srt"); }
 
             set { SetValue("ExtraFileExtensions", value); }
+        }
+
+        public bool ConvertAudiobooksToM4b
+        {
+            get { return GetValueBoolean("ConvertAudiobooksToM4b", false); }
+
+            set { SetValue("ConvertAudiobooksToM4b", value); }
+        }
+
+        public string M4bToolPath
+        {
+            get { return GetValue("M4bToolPath", "m4b-tool"); }
+
+            set { SetValue("M4bToolPath", value); }
+        }
+
+        public string M4bConversionWorkingDirectory
+        {
+            get { return GetValue("M4bConversionWorkingDirectory", string.Empty); }
+
+            set { SetValue("M4bConversionWorkingDirectory", value); }
+        }
+
+        public M4bConversionSourceAction M4bConversionSourceAction
+        {
+            get { return GetValueEnum("M4bConversionSourceAction", M4bConversionSourceAction.FollowImportMode); }
+
+            set { SetValue("M4bConversionSourceAction", value); }
+        }
+
+        public int M4bConversionJobs
+        {
+            get { return GetValueInt("M4bConversionJobs", 0); }
+
+            set { SetValue("M4bConversionJobs", value); }
+        }
+
+        public string M4bConversionAudioCodec
+        {
+            get { return GetValue("M4bConversionAudioCodec", "aac"); }
+
+            set { SetValue("M4bConversionAudioCodec", value); }
+        }
+
+        public string M4bConversionAudioBitrate
+        {
+            get { return GetValue("M4bConversionAudioBitrate", "auto"); }
+
+            set { SetValue("M4bConversionAudioBitrate", value); }
+        }
+
+        public M4bConversionAudioChannels M4bConversionAudioChannels
+        {
+            get { return GetValueEnum("M4bConversionAudioChannels", M4bConversionAudioChannels.FollowSource); }
+
+            set { SetValue("M4bConversionAudioChannels", value); }
+        }
+
+        public bool M4bConversionUseSidecarChapters
+        {
+            get { return GetValueBoolean("M4bConversionUseSidecarChapters", true); }
+
+            set { SetValue("M4bConversionUseSidecarChapters", value); }
+        }
+
+        public bool M4bConversionUseSourceCover
+        {
+            get { return GetValueBoolean("M4bConversionUseSourceCover", true); }
+
+            set { SetValue("M4bConversionUseSourceCover", value); }
+        }
+
+        public bool M4bConversionUseFilenamesAsChapters
+        {
+            get { return GetValueBoolean("M4bConversionUseFilenamesAsChapters", true); }
+
+            set { SetValue("M4bConversionUseFilenamesAsChapters", value); }
+        }
+
+        public bool M4bConversionNoChapterReindexing
+        {
+            get { return GetValueBoolean("M4bConversionNoChapterReindexing", true); }
+
+            set { SetValue("M4bConversionNoChapterReindexing", value); }
+        }
+
+        public string M4bConversionExtraArguments
+        {
+            get { return GetValue("M4bConversionExtraArguments", string.Empty); }
+
+            set { SetValue("M4bConversionExtraArguments", value); }
         }
 
         public bool WatchLibraryForChanges
