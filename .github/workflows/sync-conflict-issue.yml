@@ -1,0 +1,62 @@
+name: Open issue on sync conflict
+
+on:
+  workflow_run:
+    workflows: ["Sync branch with develop"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  issues: write
+
+jobs:
+  open-issue:
+    if: ${{ github.event.workflow_run.conclusion == 'failure' }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create issue for failed sync
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const run = context.payload.workflow_run;
+            const title = `Sync conflict: develop -> codex/m4b-conversion-settings (${new Date().toISOString().slice(0,10)})`;
+
+            const body = [
+              "Automatic branch sync failed, likely due to a merge conflict.",
+              "",
+              `- Workflow: ${run.name}`,
+              `- Run ID: ${run.id}`,
+              `- Branch: \`codex/m4b-conversion-settings\``,
+              `- Upstream: \`develop\``,
+              `- URL: ${run.html_url}`,
+              "",
+              "### Next steps",
+              "1. Checkout `codex/m4b-conversion-settings` locally",
+              "2. Merge `develop`",
+              "3. Resolve conflicts",
+              "4. Push the updated branch",
+              "5. Close this issue"
+            ].join("\n");
+
+            // Avoid duplicate open issues with same prefix
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: "open",
+              per_page: 100
+            });
+
+            const exists = issues.some(i =>
+              i.title.startsWith("Sync conflict: develop -> codex/m4b-conversion-settings")
+            );
+
+            if (!exists) {
+              await github.rest.issues.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                title,
+                body,
+                labels: ["automation", "merge-conflict"]
+              });
+            }
