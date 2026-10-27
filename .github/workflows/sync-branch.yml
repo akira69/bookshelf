@@ -1,0 +1,40 @@
+name: Sync branch with develop
+
+on:
+  schedule:
+    - cron: "15 6 * * *" # daily at 06:15 UTC
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+
+permissions:
+  contents: write
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout target branch
+        uses: actions/checkout@v4
+        with:
+          ref: codex/m4b-conversion-settings
+          fetch-depth: 0
+
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Merge develop into target branch
+        run: |
+          git fetch origin develop
+          git checkout codex/m4b-conversion-settings
+          git merge --no-edit origin/develop || {
+            echo "Merge conflict detected. Manual resolution required."
+            exit 1
+          }
+
+      - name: Push changes
+        run: |
+          git push origin codex/m4b-conversion-settings
